@@ -2,69 +2,57 @@ package appu26j;
 
 import appu26j.utils.OSUtil;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Main
 {
 	public static void main(String[] arguments)
 	{
-		String allArgs = getArgs(arguments);
-
-		if (!OSUtil.isOnWindows() && !allArgs.contains("-XstartOnFirstThread"))
+		if (!OSUtil.isOnWindows() && restartJVM(arguments))
 		{
-			restartItself(allArgs);
 			System.exit(0);
 		}
 
 		AppleClientInstaller.INSTANCE.start();
 	}
 
-	private static void restartItself(String args)
+	public static boolean restartJVM(String[] args)
 	{
-		try
-		{
-			args = args.replaceFirst("::", "::-XstartOnFirstThread::");
-			String[] argsArray = args.split("::");
-			Runtime.getRuntime().exec(argsArray);
+		// get current jvm process pid
+		String pid = ManagementFactory.getRuntimeMXBean().getName().split("@")[0];
+		// get environment variable on whether XstartOnFirstThread is enabled
+		String env = System.getenv("JAVA_STARTED_ON_FIRST_THREAD_" + pid);
+
+		// if environment variable is "1" then XstartOnFirstThread is enabled
+		if ("1".equals(env)) {
+			return false;
 		}
 
-		catch (Exception e)
-		{
+		// restart jvm with -XstartOnFirstThread
+		String separator = System.getProperty("file.separator");
+		String classpath = System.getProperty("java.class.path");
+		String mainClass = System.getenv("JAVA_MAIN_CLASS_" + pid);
+		String jvmPath = System.getProperty("java.home") + separator + "bin" + separator + "java";
+
+		ArrayList<String> jvmArgs = new ArrayList<String>(128);
+		jvmArgs.add(jvmPath);
+		jvmArgs.add("-XstartOnFirstThread");
+		jvmArgs.addAll(ManagementFactory.getRuntimeMXBean().getInputArguments());  // <-- input arguments!
+		jvmArgs.add("-cp");
+		jvmArgs.add(classpath);
+		jvmArgs.add(mainClass);
+		jvmArgs.addAll(Arrays.asList(args));
+
+		try {
+			ProcessBuilder processBuilder = new ProcessBuilder(jvmArgs);
+			processBuilder.start();
+		}
+		catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
 
-	private static String getArgs(String[] args)
-	{
-		String separator = "::";
-		StringBuilder cmd = new StringBuilder();
-		cmd.append("\"").append(System.getProperty("java.home")).append(File.separator).append("bin").append(File.separator).append("java").append("\"").append(separator);
-
-		for (String jvmArg : ManagementFactory.getRuntimeMXBean().getInputArguments())
-		{
-			boolean temp = jvmArg.startsWith("-Djava.library.path=");
-
-			if (temp)
-			{
-				cmd.append("-Djava.library.path=").append("\"").append(jvmArg.replace("-Djava.library.path=", "")).append("\"").append(separator);
-			}
-
-			else
-			{
-				cmd.append(jvmArg).append(separator);
-			}
-		}
-
-		cmd.append("-cp").append(separator).append("\"").append(ManagementFactory.getRuntimeMXBean().getClassPath()).append("\"").append(separator);
-		cmd.append(Main.class.getName()).append(separator);
-
-		for (String arg : args)
-		{
-			cmd.append(arg).append(separator);
-		}
-
-		cmd.setLength(cmd.length() - 2);
-		return cmd.toString();
+		return true;
 	}
 }
