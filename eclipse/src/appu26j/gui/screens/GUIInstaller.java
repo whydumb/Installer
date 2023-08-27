@@ -24,7 +24,7 @@ public class GUIInstaller extends GUIScreen
 		else if (this.status.equals("Done!") || this.status.equals("Apple Client is already installed!"))
 		{
 			this.fontRendererMid.drawString(this.status, (this.width / 2) - (this.fontRendererMid.getStringWidth(this.status) / 2), 2.5F, new Color(0, 0, 0));
-			this.fontRenderer.drawString("Feel free to close the window", (this.width / 2) - (this.fontRenderer.getStringWidth("Feel free to close the window") / 2), 72, new Color(0, 0, 0));
+			this.fontRenderer.drawString("Open MC Launcher/another launcher and launch Apple Client.", (this.width / 2) - (this.fontRenderer.getStringWidth("Open MC Launcher/another launcher and launch Apple Client") / 2), 72, new Color(0, 0, 0));
 		}
 
 		else
