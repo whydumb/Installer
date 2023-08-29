@@ -21,6 +21,15 @@ public class GUIInstaller extends GUIScreen
 			this.fontRendererMid.drawString("Install", (this.width / 2) - (this.fontRendererMid.getStringWidth("Install") / 2), this.height - 165, new Color(0, 0, 0));
 		}
 
+		else if (this.status.equals("Which version do you want to install?"))
+		{
+			this.fontRendererMid.drawString(this.status, (this.width / 2) - (this.fontRendererMid.getStringWidth(this.status) / 2), (this.height / 2) - 125, new Color(0, 0, 0));
+			GUI.drawRect((this.width / 2) - 225, (this.height / 2) - 25, (this.width / 2) - 15, (this.height / 2) + 50, this.isInsideBox(mouseX, mouseY, (this.width / 2) - 225, (this.height / 2) - 25, (this.width / 2) - 15, (this.height / 2) + 50) ? new Color(220, 220, 220) : new Color(240, 240, 240));
+			GUI.drawRect((this.width / 2) + 15, (this.height / 2) - 25, (this.width / 2) + 225, (this.height / 2) + 50, this.isInsideBox(mouseX, mouseY, (this.width / 2) + 15, (this.height / 2) - 25, (this.width / 2) + 225, (this.height / 2) + 50) ? new Color(220, 220, 220) : new Color(240, 240, 240));
+			this.fontRendererMid.drawString("1.8.9", ((this.width / 2) - 120) - (this.fontRendererMid.getStringWidth("1.8.9") / 2), (this.height / 2) - 25, new Color(0, 0, 0));
+			this.fontRendererMid.drawString("1.7.10", ((this.width / 2) + 120) - (this.fontRendererMid.getStringWidth("1.7.10") / 2), (this.height / 2) - 25, new Color(0, 0, 0));
+		}
+
 		else if (this.status.equals("Done!") || this.status.equals("Apple Client is already installed!"))
 		{
 			this.fontRendererMid.drawString(this.status, (this.width / 2) - (this.fontRendererMid.getStringWidth(this.status) / 2), 2.5F, new Color(0, 0, 0));
@@ -47,9 +56,22 @@ public class GUIInstaller extends GUIScreen
 	{
 		super.mouseClicked(mouseButton, mouseX, mouseY);
 
-		if (this.isInsideBox(mouseX, mouseY, (this.width / 2) - 200, this.height - 175, (this.width / 2) + 200, this.height - 75) && mouseButton == 0)
+		if (this.status.isEmpty() && this.isInsideBox(mouseX, mouseY, (this.width / 2) - 200, this.height - 175, (this.width / 2) + 200, this.height - 75) && mouseButton == 0)
 		{
-			Installer.install(this);
+			this.status = "Which version do you want to install?";
+		}
+
+		if (this.status.equals("Which version do you want to install?") && mouseButton == 0)
+		{
+			if (this.isInsideBox(mouseX, mouseY, (this.width / 2) - 225, (this.height / 2) - 25, (this.width / 2) - 15, (this.height / 2) + 50))
+			{
+				Installer.install18(this);
+			}
+
+			if (this.isInsideBox(mouseX, mouseY, (this.width / 2) + 15, (this.height / 2) - 25, (this.width / 2) + 225, (this.height / 2) + 50))
+			{
+				Installer.install17(this);
+			}
 		}
 	}
 }
